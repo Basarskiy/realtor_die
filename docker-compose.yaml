@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  mysql_rd:
+    container_name: mysql_rd
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: aswq1234
+      MYSQL_DATABASE: rd_db
+      MYSQL_USER: rd_user
+      MYSQL_PASSWORD: aswq1234
+    ports:
+      - '4306:3306'
+    volumes:
+      - ./mysql:/var/lib/mysql
+  php_rd:
+    container_name: php_rd
+    build:
+      context: ./
+    ports:
+      - '9000:9000'
+    volumes:
+      - ../:/var/www/rd
+    depends_on:
+      - mysql_rd
+  nginx_rd:
+    container_name: nginx_rd
+    image: nginx:stable-alpine
+    ports:
+      - '8080:80'
+    volumes:
+      - ../:/var/www/rd
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php_rd
+      - mysql_rd
